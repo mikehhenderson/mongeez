@@ -39,17 +39,24 @@ public class MongeezDao {
     }
 
     public MongeezDao(Mongo mongo, String databaseName, MongoAuth auth) {
-        final List<MongoCredential> credentials = new LinkedList<MongoCredential>();
-
-        if (auth != null) {
-            if (auth.getAuthDb() == null || auth.getAuthDb().equals(databaseName)) {
-                credentials.add(MongoCredential.createCredential(auth.getUsername(), databaseName, auth.getPassword().toCharArray()));
-            } else {
-                credentials.add(MongoCredential.createCredential(auth.getUsername(), auth.getAuthDb(), auth.getPassword().toCharArray()));
-            }
-        }
-
-        final MongoClient client = new MongoClient(mongo.getServerAddressList(),  credentials);
+    	final MongoClient client;
+    	
+    	if (mongo instanceof MongoClient) {
+    		client = (MongoClient)mongo;
+    	}
+    	else {
+	        final List<MongoCredential> credentials = new LinkedList<MongoCredential>();
+	
+	        if (auth != null) {
+	            if (auth.getAuthDb() == null || auth.getAuthDb().equals(databaseName)) {
+	                credentials.add(MongoCredential.createCredential(auth.getUsername(), databaseName, auth.getPassword().toCharArray()));
+	            } else {
+	                credentials.add(MongoCredential.createCredential(auth.getUsername(), auth.getAuthDb(), auth.getPassword().toCharArray()));
+	            }
+	        }
+	
+	        client = new MongoClient(mongo.getServerAddressList(),  credentials);
+    	}
         db = client.getDB(databaseName);
         configure();
     }
